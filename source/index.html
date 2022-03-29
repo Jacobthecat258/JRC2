@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <body>
+        <script src="hrc2.js"></script>
+        <style>
+            html, body {
+                margin: 0px;
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+        <script>
+            window.oncontextmenu=()=>false;
+            var r = hrc2.createRenderer();
+            r.width = "100";
+            r.height = 100;
+            r.resx = 1920;
+            r.resy = 1080;
+            document.body.append(r.node);
+            var o = r.createObject();
+            setInterval(r.updateDisplay, 10);
+        </script>
+    </body>
+</html>
