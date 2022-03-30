@@ -1,34 +1,65 @@
-var hrc2 = { //hrc2 = HTML Rendering Context 2D
+var jrc2 = { //jrc2 = J-HTML Rendering Context 2D
     createRenderer: function() {
+        function strictOr(a, b) { //The idea of a "strict or" is to return the second value only if the first value is strictly (===) undefined, not just undefined (==), so values like 0 will return.
+            if (a === undefined) {
+                return b;
+            } else {
+                return a;
+            }
+        }
         var renderer = {
             internal: {
                 objects: []
             },
             updateDisplay: function() {
-                renderer.internal.canvas.width = renderer.resolutionx || renderer.width; //todo: fix 0 is false, so returns width, not resx
-                renderer.internal.canvas.height = renderer.resolutiony || renderer.height;
+                renderer.internal.canvas.width = strictOr(renderer.resolutionx, renderer.width);
+                renderer.internal.canvas.height = strictOr(renderer.resolutiony, renderer.height);
                 renderer.internal.canvas.style.width = (renderer.node.width) || (renderer.width + "px");
                 renderer.internal.canvas.style.height = (renderer.node.height) || (renderer.height + "px");
                 renderer.internal.ctx.clearRect(0, 0, renderer.internal.canvas.width, renderer.internal.canvas.height);
-                for (i = 0; i < renderer.internal.objects.length; i++) {
-                    let object = renderer.internal.objects[i];;
-                    renderer.internal.ctx.fillStyle = object.texture;
-                    renderer.internal.ctx.fillRect(object.x, object.y, object.sizex, object.sizey);
+                for (var i = 0; i < renderer.internal.objects.length; i++) {
+                    let object = renderer.internal.objects[i];
+                    if (object) {
+                        if (object.texture !== undefined) {
+                            try {
+                                renderer.internal.ctx.drawImage(renderer.internal.textures.children[object.texture], object.x, object.y, object.sizex, object.sizey);
+                            } catch(err) {
+                                console.log("JRC2 could not load image. Error: " + err);
+                                object.texture = undefined;
+                            }
+                        } else {
+                            renderer.internal.ctx.fillStyle = object.color;
+                            renderer.internal.ctx.fillRect(object.x - renderer.scrollx, object.y - renderer.scrolly, object.sizex, object.sizey);
+                        }
+                    }
                 }
             },
             createObject: function() { //todo: rotation, remove function, object id
                 var o = {
                     x: 0,
                     y: 0,
-                    texture: "#ff0000",
+                    color: "#ff0000",
                     sizex: 10,
                     sizey: 10,
                     //rotationx: 0,
                     //rotationY: 0,
-                    renderer: renderer
+                    renderer: renderer,
+                    id: renderer.internal.objectid,
+                    remove: function() {
+                        renderer.internal.objects[o.id] = undefined;
+                        o = undefined;
+                    }
                 };
+                renderer.internal.objectid++;
                 renderer.internal.objects.push(o);
                 return o;
+            },
+            createTexture: function(src) {
+                var i = document.createElement("img"); //i = image
+                i.src = src;
+                var l = renderer.internal.textures.children.length; //l = length
+                renderer.internal.textures.append(i);
+                return l;
             }
         };
         renderer.node = document.createElement("hrc2_renderer");
@@ -42,6 +73,12 @@ var hrc2 = { //hrc2 = HTML Rendering Context 2D
         renderer.internal.ctx = renderer.internal.canvas.getContext("2d");
         renderer.width = 100;
         renderer.height = 100;
+        renderer.scrollx = 0;
+        renderer.scrolly = 0;
+        renderer.internal.textures = document.createElement("hrc2_textures");
+        renderer.internal.textures.style.display = "none";
+        renderer.node.append(renderer.internal.textures);
+        renderer.internal.objectid = 0;
         if (!renderer.internal.ctx) throw "Browser does not support hrc2";
         return renderer;
     }
