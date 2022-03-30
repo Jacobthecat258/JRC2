@@ -79,7 +79,7 @@ var jrc2 = { //jrc2 = J-HTML Rendering Context 2D
         renderer.internal.textures.style.display = "none";
         renderer.node.append(renderer.internal.textures);
         renderer.internal.objectid = 0;
-        if (!renderer.internal.ctx) throw "Browser does not support hrc2";
+        if (!renderer.internal.ctx) console.error("Browser does not support hrc2");
         return renderer;
     }
 }
