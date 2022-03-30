@@ -14,8 +14,8 @@ var jrc2 = { //jrc2 = J-HTML Rendering Context 2D
             updateDisplay: function() {
                 renderer.internal.canvas.width = strictOr(renderer.resolutionx, renderer.width);
                 renderer.internal.canvas.height = strictOr(renderer.resolutiony, renderer.height);
-                renderer.internal.canvas.style.width = (renderer.node.width) || (renderer.width + "px");
-                renderer.internal.canvas.style.height = (renderer.node.height) || (renderer.height + "px");
+                renderer.node.style.width = (renderer.node.width) || (renderer.width + "px");
+                renderer.node.style.height = (renderer.node.height) || (renderer.height + "px");
                 renderer.internal.ctx.clearRect(0, 0, renderer.internal.canvas.width, renderer.internal.canvas.height);
                 for (var i = 0; i < renderer.internal.objects.length; i++) {
                     let object = renderer.internal.objects[i];
@@ -65,8 +65,8 @@ var jrc2 = { //jrc2 = J-HTML Rendering Context 2D
         renderer.node = document.createElement("hrc2_renderer");
         renderer.node.style.display = "inline-block";
         renderer.internal.canvas = document.createElement("canvas");
-        renderer.internal.canvas.style.width = "0px";
-        renderer.internal.canvas.style.height = "0px";
+        renderer.internal.canvas.style.width = "100%";
+        renderer.internal.canvas.style.height = "100%";
         renderer.internal.canvas.style.display = "block"
         renderer.node.append(renderer.internal.canvas);
         renderer.internal.canvas.append("Sorry, your browser is not supported. Try upgrading your browser, or use another.");
