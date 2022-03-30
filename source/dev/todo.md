@@ -1,10 +1,12 @@
+<link rel="stylesheet" href=".md.css">
+
 # Todo
 
  - Todos on the createObject function (in comment)
 
- - Make a HRC2 github repo
+ - <done>Make a HRC2 github repo<done>
 
- - Fix bugs and make basic release
+ - <done>Fix bugs and make basic release</done>
 
  - Add 3D support (also change name to hrc for HTML Rendering Context, dropping 2D as it can also support 3D, not only 2D)
 
