@@ -22,7 +22,7 @@ var jrc2 = { //jrc2 = J-HTML Rendering Context 2D
                     if (object) {
                         if (object.texture !== undefined) {
                             try {
-                                renderer.internal.ctx.drawImage(renderer.internal.textures.children[object.texture], object.x, object.y, object.sizex, object.sizey);
+                                renderer.internal.ctx.drawImage(renderer.internal.textures.children[object.texture], object.x - renderer.scrollx, object.y - renderer.scrolly, object.sizex, object.sizey);
                             } catch(err) {
                                 console.log("JRC2 could not load image. Error: " + err);
                                 object.texture = undefined;
@@ -34,13 +34,14 @@ var jrc2 = { //jrc2 = J-HTML Rendering Context 2D
                     }
                 }
             },
-            createObject: function() { //todo: rotation, remove function, object id
+            createObject: function(x, y, sizex, sizey, color, texture) { //todo: rotation, remove function, object id
                 var o = {
-                    x: 0,
-                    y: 0,
-                    color: "#ff0000",
-                    sizex: 10,
-                    sizey: 10,
+                    x: strictOr(x, 0),
+                    y: strictOr(y, 0),
+                    color: strictOr(color, "#ff0000"),
+                    sizex: strictOr(sizex, 10),
+                    sizey: strictOr(sizey, 10),
+                    texture: strictOr(texture, undefined),
                     //rotationx: 0,
                     //rotationY: 0,
                     renderer: renderer,
