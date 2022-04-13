@@ -1,5 +1,5 @@
-var jrc2 = { //jrc2 = J-HTML Rendering Context 2D
-    createRenderer: function() {
+class jrc2 { //jrc2 = J-HTML Rendering Context 2D
+    constructor() {
         function strictOr(a, b) { //The idea of a "strict or" is to return the second value only if the first value is strictly (===) undefined, not just undefined (==), so values like 0 will return.
             if (a === undefined) {
                 return b;
@@ -34,7 +34,7 @@ var jrc2 = { //jrc2 = J-HTML Rendering Context 2D
                     }
                 }
             },
-            createObject: function(x, y, sizex, sizey, color, texture) { //todo: rotation, remove function, object id
+            createObject: function(x, y, sizex, sizey, color, texture) { //todo: rotation, remove function (done), object id
                 var o = {
                     x: strictOr(x, 0),
                     y: strictOr(y, 0),
@@ -49,6 +49,17 @@ var jrc2 = { //jrc2 = J-HTML Rendering Context 2D
                     remove: function() {
                         renderer.internal.objects[o.id] = undefined;
                         o = undefined;
+                    },
+                    isColiding: function() {
+                        return renderer.isColiding(o.x, o.y, o.sizex, o.sizey);
+                    },
+                    move: function(x, y, collisionCheck) {
+                        o.x += x;
+                        o.y += y;
+                        if (collisionCheck && o.isColiding()) {
+                            o.x -= x;
+                            o.y -= y;
+                        }
                     }
                 };
                 renderer.internal.objectid++;
@@ -61,9 +72,48 @@ var jrc2 = { //jrc2 = J-HTML Rendering Context 2D
                 var l = renderer.internal.textures.children.length; //l = length
                 renderer.internal.textures.append(i);
                 return l;
+            },
+            createCollisionPoint: function(xfrom, yfrom, xto, yto, object, data) {
+                renderer.internal.collisionPoints.push({
+                    xf: xfrom,
+                    xt: xto,
+                    yf: yfrom,
+                    yt: yto,
+                    object: object,
+                    data: data
+                });
+            },
+            createCollisionObject: function(x, y, sizex, sizey, color, texture, data) {
+                var length = renderer.internal.collisionPoints.length;
+                var o = renderer.createObject(x, y, sizex, sizey, color, texture);
+                var oldRemove = o.remove;
+                o.remove = function() {
+                    oldRemove();
+                    renderer.internal.collisionPoints[length] = null;
+                }
+                renderer.createCollisionPoint(x, y, x + sizex, y + sizey, o, data);
+                return o;
+            },
+            isColiding: function(x, y, sizex, sizey) {
+                for (i = 0; i < renderer.internal.collisionPoints.length; i++) {
+                    var p1 = renderer.internal.collisionPoints[i];
+                    if (p1) {
+                        var o = p1.object; //This removes the object to prevent cyclic object error.
+                        p1.object = null;
+                        var p = JSON.parse(JSON.stringify(renderer.internal.collisionPoints[i])); //p = points, the parse and stringify are for making a clone of the object.
+                        p1.object = o;
+                        p.xf = p.xf - sizex;
+                        p.yf = p.yf - sizey;
+                        if (p.xf <= x && p.xt >= x && p.yf <= y && p.yt >= y) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
             }
         };
-        renderer.node = document.createElement("hrc2_renderer");
+        console.log(renderer.createCollisionObject);
+        renderer.node = document.createElement("jrc2_renderer");
         renderer.node.style.display = "inline-block";
         renderer.internal.canvas = document.createElement("canvas");
         renderer.internal.canvas.style.width = "100%";
@@ -76,18 +126,19 @@ var jrc2 = { //jrc2 = J-HTML Rendering Context 2D
         renderer.height = 100;
         renderer.scrollx = 0;
         renderer.scrolly = 0;
-        renderer.internal.textures = document.createElement("hrc2_textures");
+        renderer.internal.textures = document.createElement("jrc2_textures");
         renderer.internal.textures.style.display = "none";
+        renderer.internal.collisionPoints = [];
         renderer.node.append(renderer.internal.textures);
         renderer.internal.objectid = 0;
-        if (!renderer.internal.ctx) console.error("Browser does not support hrc2");
+        if (!renderer.internal.ctx) console.error("Browser does not support jrc2");
         return renderer;
     }
 }
 
 
 /*
- * Idea for hrc2.createRenderer.createObject();
+ * Idea for jrc2.createRenderer.createObject();
  *
  * Creates an object (like {}, not an object to be drawn) that has these keys:
  * 

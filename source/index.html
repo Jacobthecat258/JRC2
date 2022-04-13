@@ -11,7 +11,7 @@
         </style>
         <script>
             window.oncontextmenu=()=>false;
-            var r = jrc2.createRenderer();
+            var r = new jrc2();
             r.width = "100";
             r.height = 100;
             r.resolutionx = 100
@@ -19,6 +19,15 @@
             document.body.append(r.node);
             var o = r.createObject();
             setInterval(r.updateDisplay, 10);
+            var o2 = r.createCollisionObject(25, 25, 10, 10, "#00ff00");
+
+            //input
+            var i = document.createElement("input");
+            document.body.append(i);
+            i.onkeydown = function(e) {
+                //console.log(e.key);
+                if (e.key === "Enter") eval(i.value);
+            }
         </script>
     </body>
 </html>
